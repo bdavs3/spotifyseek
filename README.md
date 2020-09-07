@@ -1,0 +1,2 @@
+# Spotifyseek
+This project invokes [slsk-client](https://github.com/f-hj/slsk-client), a library containing functions for searching and downloading files from [soulseek](http://www.slsknet.org/news/). The initial version of this project simply downloads the first search result for a query supplied by the user in the command line. The planned implementation is for the user to login with Spotify, and then select a playlist they would like to download. Using the Spotify API, song/artist names will be sent as search queries to slsk-client to be downloaded.
