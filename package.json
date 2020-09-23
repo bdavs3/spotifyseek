@@ -10,6 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "got": "^11.7.0",
+    "request": "^2.88.2",
     "slsk-client": "^1.1.0"
   }
 }
