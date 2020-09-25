@@ -30,7 +30,7 @@ class Server {
       .use(cors())
       .use(cookieParser());
 
-    app.get("/login", (req, res) => {
+    app.get("/account", (req, res) => {
       let state = Server.generateRandomString(16);
       res.cookie(STATE_KEY, state);
 
@@ -44,6 +44,10 @@ class Server {
             state: state,
           })
       );
+    });
+
+    app.get("/playlist-names", (req, res) => {
+      res.send("This will query for your playlist names.");
     });
 
     app.get("/callback", (req, res) => {
