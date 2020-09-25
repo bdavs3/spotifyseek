@@ -11,15 +11,10 @@ const SCOPE = "playlist-modify-public playlist-modify-private";
 const STATE_KEY = "spotify-auth-state";
 
 class Server {
-  static generateRandomString(length) {
-    let text = "";
-    let possible =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for (let i = 0; i < length; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
+  constructor() {
+    this.userId = null;
+    this.access_token = null;
+    this.refresh_token = null;
   }
 
   authorize() {
@@ -31,7 +26,7 @@ class Server {
       .use(cookieParser());
 
     app.get("/playlist-names", (req, res) => {
-      let state = Server.generateRandomString(16);
+      let state = this.generateRandomString(16);
       res.cookie(STATE_KEY, state);
 
       res.redirect(
@@ -47,7 +42,7 @@ class Server {
     });
 
     app.get("/callback", (req, res) => {
-      let code = req.query.code || null;
+      let authCode = req.query.code || null;
       let state = req.query.state || null;
       let storedState = req.cookies ? req.cookies[STATE_KEY] : null;
 
@@ -60,95 +55,119 @@ class Server {
         );
       } else {
         res.clearCookie(STATE_KEY);
-        let authOptions = {
-          url: "https://accounts.spotify.com/api/token",
-          form: {
-            code: code,
-            redirect_uri: REDIRECT_URI,
-            grant_type: "authorization_code",
-          },
-          headers: {
-            Authorization:
-              "Basic " +
-              new Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString(
-                "base64"
-              ),
-          },
-          json: true,
-        };
 
         (async () => {
-          try {
-            const response = await got.post(authOptions.url, {
-              form: authOptions.form,
-              headers: {
-                Authorization:
-                  "Basic " +
-                  new Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString(
-                    "base64"
-                  ),
-              },
-            });
-
-            let body = JSON.parse(response.body);
-            let access_token = body.access_token,
-              refresh_token = body.refresh_token;
-
-            let userReq = {
-              url: "https://api.spotify.com/v1/me",
-              headers: { Authorization: "Bearer " + access_token },
-            };
-
-            (async () => {
-              try {
-                const response = await got.get(userReq.url, {
-                  headers: userReq.headers,
-                });
-
-                let userId = JSON.parse(response.body).id;
-
-                let playlistReq = {
-                  url:
-                    "https://api.spotify.com/v1/users/" + userId + "/playlists",
-                  headers: { Authorization: "Bearer " + access_token },
-                };
-
-                (async () => {
-                  try {
-                    const response = await got.get(playlistReq.url, {
-                      headers: playlistReq.headers,
-                    });
-
-                    console.log(response.body);
-                  } catch (error) {
-                    console.log("Error in get playlist data:");
-                    console.log(error.message);
-                  }
-                })();
-              } catch (error) {
-                console.log("Error in get user data:");
-                console.log(error.message);
-              }
-            })();
-
-            res.redirect(
-              "/#" +
-                querystring.stringify({
-                  access_token: access_token,
-                  refresh_token: refresh_token,
-                })
-            );
-          } catch (error) {
-            console.log("Err in post:");
-            console.log(error.message);
-          }
+          await this.setAccessToken(authCode);
+          await this.setUserId();
+          await this.gcetPlaylistInfo();
         })();
+
+        res.redirect(
+          "/#" +
+            querystring.stringify({
+              access_token: this.access_token,
+              refresh_token: this.refresh_token,
+            })
+        );
       }
     });
 
     app.listen(8888, () => {
       console.log("Listening on 8888...");
     });
+  }
+
+  generateRandomString(length) {
+    let text = "";
+    let possible =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for (let i = 0; i < length; i++) {
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+    return text;
+  }
+
+  // Exchanges authorization code for access token, as outlined here:
+  // https://developer.spotify.com/documentation/general/guides/authorization-guide/#authorization-code-flow
+  async setAccessToken(authCode) {
+    let options = {
+      url: "https://accounts.spotify.com/api/token",
+      form: {
+        code: authCode,
+        redirect_uri: REDIRECT_URI,
+        grant_type: "authorization_code",
+      },
+      headers: {
+        Authorization:
+          "Basic " +
+          new Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString("base64"),
+      },
+      json: true,
+    };
+
+    try {
+      const response = await got.post(options.url, {
+        form: options.form,
+        headers: {
+          Authorization:
+            "Basic " +
+            new Buffer.from(CLIENT_ID + ":" + CLIENT_SECRET).toString("base64"),
+        },
+      });
+
+      let body = JSON.parse(response.body);
+
+      this.access_token = body.access_token;
+      this.refresh_token = body.refresh_token;
+
+      this.setUserId(); // Now that we have an access token, we can continue.
+    } catch (error) {
+      console.log("Err in post:");
+      console.log(error.message);
+    }
+  }
+
+  // Sets the user ID for the user that signed in with their Spotify details during the authentication process.
+  async setUserId() {
+    console.log("Set user Id.");
+
+    let options = {
+      url: "https://api.spotify.com/v1/me",
+      headers: { Authorization: "Bearer " + this.access_token },
+    };
+
+    try {
+      const response = await got.get(options.url, {
+        headers: options.headers,
+      });
+
+      this.userId = JSON.parse(response.body).id;
+    } catch (error) {
+      console.log("Error in get user data:");
+      console.log(error.message);
+    }
+  }
+
+  // Retrieves playlist data for the signed
+  async getPlaylistInfo() {
+    console.log("Get playlist info.");
+
+    let options = {
+      url: "https://api.spotify.com/v1/users/" + this.userId + "/playlists",
+      headers: { Authorization: "Bearer " + this.access_token },
+    };
+
+    try {
+      const response = await got.get(options.url, {
+        headers: options.headers,
+      });
+
+      console.log(response.body);
+    } catch (error) {
+      console.log("Error in get playlist data:");
+      console.log(error.message);
+    }
   }
 }
 
