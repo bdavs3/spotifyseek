@@ -30,7 +30,7 @@ class Server {
       .use(cors())
       .use(cookieParser());
 
-    app.get("/account", (req, res) => {
+    app.get("/playlist-names", (req, res) => {
       let state = Server.generateRandomString(16);
       res.cookie(STATE_KEY, state);
 
@@ -44,10 +44,6 @@ class Server {
             state: state,
           })
       );
-    });
-
-    app.get("/playlist-names", (req, res) => {
-      res.send("This will query for your playlist names.");
     });
 
     app.get("/callback", (req, res) => {
@@ -98,21 +94,39 @@ class Server {
             let access_token = body.access_token,
               refresh_token = body.refresh_token;
 
-            console.log(access_token);
-
-            let options = {
+            let userReq = {
               url: "https://api.spotify.com/v1/me",
               headers: { Authorization: "Bearer " + access_token },
             };
 
             (async () => {
               try {
-                const response = await got.get(options.url, {
-                  headers: options.headers,
+                const response = await got.get(userReq.url, {
+                  headers: userReq.headers,
                 });
-                console.log(response.body);
+
+                let userId = JSON.parse(response.body).id;
+
+                let playlistReq = {
+                  url:
+                    "https://api.spotify.com/v1/users/" + userId + "/playlists",
+                  headers: { Authorization: "Bearer " + access_token },
+                };
+
+                (async () => {
+                  try {
+                    const response = await got.get(playlistReq.url, {
+                      headers: playlistReq.headers,
+                    });
+
+                    console.log(response.body);
+                  } catch (error) {
+                    console.log("Error in get playlist data:");
+                    console.log(error.message);
+                  }
+                })();
               } catch (error) {
-                console.log("Error in get:");
+                console.log("Error in get user data:");
                 console.log(error.message);
               }
             })();
