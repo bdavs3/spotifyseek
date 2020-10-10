@@ -59,7 +59,7 @@ class Server {
         (async () => {
           await this.setAccessToken(authCode);
           await this.setUserId();
-          await this.gcetPlaylistInfo();
+          await this.getPlaylistInfo();
         })();
 
         res.redirect(
