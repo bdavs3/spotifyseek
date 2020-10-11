@@ -20,10 +20,7 @@ class Server {
   authorize() {
     let app = express();
 
-    app
-      .use(express.static(__dirname + "/public"))
-      .use(cors())
-      .use(cookieParser());
+    app.use(cors()).use(cookieParser());
 
     app.get("/playlist-names", (req, res) => {
       let state = this.generateRandomString(16);
@@ -159,9 +156,13 @@ class Server {
         headers: options.headers,
       });
 
+      let playlistNames = [];
+
       JSON.parse(response.body).items.forEach((item) => {
-        console.log(item.name);
+        playlistNames.push(item);
       });
+
+      return playlistNames;
     } catch (error) {
       console.log("Error in get playlist data:");
       console.log(error.message);
