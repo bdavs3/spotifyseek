@@ -130,8 +130,6 @@ class Server {
 
   // Sets the user ID for the user that signed in with their Spotify details during the authentication process.
   async setUserId() {
-    console.log("Set user Id.");
-
     let options = {
       url: "https://api.spotify.com/v1/me",
       headers: { Authorization: "Bearer " + this.access_token },
@@ -151,8 +149,6 @@ class Server {
 
   // Retrieves playlist data for the signed
   async getPlaylistInfo() {
-    console.log("Get playlist info.");
-
     let options = {
       url: "https://api.spotify.com/v1/users/" + this.userId + "/playlists",
       headers: { Authorization: "Bearer " + this.access_token },
@@ -163,7 +159,9 @@ class Server {
         headers: options.headers,
       });
 
-      console.log(response.body);
+      JSON.parse(response.body).items.forEach((item) => {
+        console.log(item.name);
+      });
     } catch (error) {
       console.log("Error in get playlist data:");
       console.log(error.message);
