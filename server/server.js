@@ -12,9 +12,10 @@ const STATE_KEY = "spotify-auth-state";
 
 class Server {
   constructor() {
-    this.userId = null;
-    this.access_token = null;
-    this.refresh_token = null;
+    this.authCode = null; // Granted after Spotify user approves access.
+    this.access_token = null; // Exchanged for auth code. Needed for API calls.
+    this.userId = null; // Spotify user ID
+    //this.refresh_token = null;
   }
 
   authorize() {
@@ -22,7 +23,7 @@ class Server {
 
     app.use(cors()).use(cookieParser());
 
-    app.get("/playlist-names", (req, res) => {
+    app.get("/", (req, res) => {
       let state = this.generateRandomString(16);
       res.cookie(STATE_KEY, state);
 
@@ -56,7 +57,7 @@ class Server {
         (async () => {
           await this.setAccessToken(authCode);
           await this.setUserId();
-          await this.getPlaylistInfo();
+          //await this.getPlaylistInfo();
         })();
 
         res.redirect(
