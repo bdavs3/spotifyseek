@@ -1,29 +1,17 @@
 import React, { Component } from "react";
-import axios from "axios";
 
 class PlaylistDropdown extends Component {
-  constructor() {
-    super();
-    this.state = {
-      playlistNames: [],
-    };
-  }
-
-  componentDidMount = () => {
-    axios.get("/playlist-names").then((response) => {
-      console.log(response.data);
-    });
-    // this.setState({
-    // });
+  change = (event) => {
+    this.setState({value: event.target.value});
   };
 
   render() {
     return (
       <div>
-        <select name="playlists" id="playlists">
-          {this.state.playlistNames.forEach((name) => {
-            return <option value={name}>{name}</option>;
-          })}
+        <select onChange={this.props.dropdownChange} name="playlists" id="playlists">
+          {this.props.playlistData.map(playlist => (
+            <option key={playlist.id} value={playlist.id}>{playlist.name}</option>
+          ))}
         </select>
       </div>
     );
