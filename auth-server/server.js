@@ -7,25 +7,26 @@ const got = require("got");
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = "http://localhost:8888/callback";
-const SCOPE = "playlist-modify-public playlist-modify-private";
+const SCOPE = "playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private";
 const STATE_KEY = "spotify-auth-state";
 
 class Server {
   constructor() {
-    this.userId = null;
-    this.access_token = null;
-    this.refresh_token = null;
+    this.authCode = null; // Granted after Spotify user approves access.
+    this.access_token = null; // Exchanged for auth code. Needed for API calls.
+    this.userId = null; // Spotify user ID
+    //this.refresh_token = null;
   }
 
   authorize() {
     let app = express();
 
     app
-      .use(express.static(__dirname + "/public"))
+      .use(express.static(__dirname + '/public'))
       .use(cors())
       .use(cookieParser());
 
-    app.get("/playlist-names", (req, res) => {
+    app.get("/login", (req, res) => {
       let state = this.generateRandomString(16);
       res.cookie(STATE_KEY, state);
 
@@ -58,17 +59,17 @@ class Server {
 
         (async () => {
           await this.setAccessToken(authCode);
-          await this.setUserId();
-          await this.getPlaylistInfo();
+          //await this.setUserId();
+          //await this.getPlaylistInfo());
+          
+          await res.redirect(
+            "http://localhost:3000/#" +
+              querystring.stringify({
+                access_token: this.access_token,
+                refresh_token: this.refresh_token,
+              })
+          );
         })();
-
-        res.redirect(
-          "/#" +
-            querystring.stringify({
-              access_token: this.access_token,
-              refresh_token: this.refresh_token,
-            })
-        );
       }
     });
 
@@ -120,8 +121,6 @@ class Server {
 
       this.access_token = body.access_token;
       this.refresh_token = body.refresh_token;
-
-      this.setUserId(); // Now that we have an access token, we can continue.
     } catch (error) {
       console.log("Err in post:");
       console.log(error.message);
@@ -159,9 +158,13 @@ class Server {
         headers: options.headers,
       });
 
+      let playlistNames = [];
+
       JSON.parse(response.body).items.forEach((item) => {
-        console.log(item.name);
+        playlistNames.push(item);
       });
+
+      return playlistNames;
     } catch (error) {
       console.log("Error in get playlist data:");
       console.log(error.message);
