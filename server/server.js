@@ -3,9 +3,13 @@ const querystring = require("querystring");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const got = require("got");
+const slsk = require("./slsk");
+const Slsk = require("./slsk");
 
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const CLIENT_ID = "f50a09d5921542feb41008ac70af146c";
+const CLIENT_SECRET = "db75b49b56df42c4b3adc6dd36242d36";
+const SLSK_USERNAME = process.env.USERNAME;
+const SLSK_PW = process.env.PW;
 const REDIRECT_URI = "http://localhost:8888/callback";
 const SCOPE = "playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private";
 const STATE_KEY = "spotify-auth-state";
@@ -15,6 +19,8 @@ class Server {
     this.authCode = null; // Granted after Spotify user approves access.
     this.access_token = null; // Exchanged for auth code. Needed for API calls.
     this.userId = null; // Spotify user ID
+
+    this.client = new Slsk(SLSK_USERNAME, SLSK_PW);
   }
 
   serveExpress() {
@@ -74,7 +80,15 @@ class Server {
     });
 
     app.post("/download", (req, res) => {
-      console.log(req.body.title);
+      // req.body.tracks.forEach(async track => {
+      //   let artist = track.artist;
+      //   let title = track.title;
+
+      //   console.log(`Downloading "${title}" by ${artist}...`);
+      //   let result = await this.client.download(artist, title);
+      //   console.log(result);
+      // });
+      console.log(req.body);
     });
 
     app.listen(8888, () => {
@@ -132,48 +146,47 @@ class Server {
   }
 
   // Sets the user ID for the user that signed in with their Spotify details during the authentication process.
-  async setUserId() {
-    let options = {
-      url: "https://api.spotify.com/v1/me",
-      headers: { Authorization: "Bearer " + this.access_token },
-    };
+//   async setUserId() {
+//     let options = {
+//       url: "https://api.spotify.com/v1/me",
+//       headers: { Authorization: "Bearer " + this.access_token },
+//     };
 
-    try {
-      const response = await got.get(options.url, {
-        headers: options.headers,
-      });
+//     try {
+//       const response = await got.get(options.url, {
+//         headers: options.headers,
+//       });
 
-      this.userId = JSON.parse(response.body).id;
-    } catch (error) {
-      console.log("Error in get user data:");
-      console.log(error.message);
-    }
-  }
+//       this.userId = JSON.parse(response.body).id;
+//     } catch (error) {
+//       console.log("Error in get user data:");
+//       console.log(error.message);
+//     }
+//   }
 
-  // Retrieves playlist data for the signed
-  async getPlaylistInfo() {
-    let options = {
-      url: "https://api.spotify.com/v1/users/" + this.userId + "/playlists",
-      headers: { Authorization: "Bearer " + this.access_token },
-    };
+//   async getPlaylistInfo() {
+//     let options = {
+//       url: "https://api.spotify.com/v1/users/" + this.userId + "/playlists",
+//       headers: { Authorization: "Bearer " + this.access_token },
+//     };
 
-    try {
-      const response = await got.get(options.url, {
-        headers: options.headers,
-      });
+//     try {
+//       const response = await got.get(options.url, {
+//         headers: options.headers,
+//       });
 
-      let playlistNames = [];
+//       let playlistNames = [];
 
-      JSON.parse(response.body).items.forEach((item) => {
-        playlistNames.push(item);
-      });
+//       JSON.parse(response.body).items.forEach((item) => {
+//         playlistNames.push(item);
+//       });
 
-      return playlistNames;
-    } catch (error) {
-      console.log("Error in get playlist data:");
-      console.log(error.message);
-    }
-  }
+//       return playlistNames;
+//     } catch (error) {
+//       console.log("Error in get playlist data:");
+//       console.log(error.message);
+//     }
+//   }
 }
 
 module.exports = Server;

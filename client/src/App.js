@@ -61,26 +61,24 @@ class App extends Component {
         response.tracks.items.forEach(item => {
           trackData.push(
             {
-              title: item.track.artists[0].name,
-              artist: item.track.name,
+              artist: item.track.artists[0].name,
+              title: item.track.name,
             }
           );
         });
 
-        trackData.forEach(track => {
-          let reqOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              title: track.title,
-              artist: track.artist,
-            }),
-          };
-
-          fetch("http://localhost:8888/download", reqOptions)
-            .then(res => res.json())
-            .then(data => console.log(data));
-        });
+        let reqOptions = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: { artist: "testArtist", title: "testTitle" },
+        }
+        // trackData.forEach(track => {
+        //   reqOptions.body.tracks.push({
+        //     artist: track.artist,
+        //     title: track.title,
+        //   });
+        // });
+        fetch("http://localhost:8888/download", reqOptions);
       });
   }
 

@@ -1,2 +1,38 @@
 # Spotifyseek
-This project invokes [slsk-client](https://github.com/f-hj/slsk-client), a library containing functions for searching and downloading files from [soulseek](http://www.slsknet.org/news/). The initial version of this project simply downloads the first search result for a query supplied by the user in the command line. The planned implementation is for the user to login with Spotify, and then select a playlist they would like to download. Using the Spotify API, song/artist names will be sent as search queries to slsk-client to be downloaded.
+
+Two terminal instances are needed.
+
+Before running the server, set the necessary environment variables:
+
+```sh
+$ export USERNAME="example" # Your Soulseek username
+$ export PW="123456" # Your Soulseek password
+```
+
+Then, run the server:
+
+```sh
+$ cd server
+$ node index.js
+Listening on 8888...
+```
+
+The first time you use, or if something isn't working, try reinstalling dependencies:
+
+```sh
+$ npm install # You'll need npm to do this.
+```
+
+Finally, start the frontend:
+
+```sh
+$ cd client
+$ npm start # Launches the React app in your default browser
+```
+
+Click the link that shows up to be redirected to the Spotify OAuth flow. Once logged in, you can select a playlist to download.
+
+**Notes**:
+
+- Downloaded files will be located in your `~/tmp/slsk` directory.
+- Make sure you aren't currently logged in to the desktop version of Soulseek, or else the server will crash when trying to connect to the service with your account.
