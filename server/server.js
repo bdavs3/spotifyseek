@@ -15,14 +15,14 @@ class Server {
     this.authCode = null; // Granted after Spotify user approves access.
     this.access_token = null; // Exchanged for auth code. Needed for API calls.
     this.userId = null; // Spotify user ID
-    //this.refresh_token = null;
   }
 
-  authorize() {
+  serveExpress() {
     let app = express();
 
     app
       .use(express.static(__dirname + '/public'))
+      .use(express.json())
       .use(cors())
       .use(cookieParser());
 
@@ -61,7 +61,7 @@ class Server {
           await this.setAccessToken(authCode);
           //await this.setUserId();
           //await this.getPlaylistInfo());
-          
+
           await res.redirect(
             "http://localhost:3000/#" +
               querystring.stringify({
@@ -71,6 +71,10 @@ class Server {
           );
         })();
       }
+    });
+
+    app.post("/download", (req, res) => {
+      console.log(req.body.title);
     });
 
     app.listen(8888, () => {

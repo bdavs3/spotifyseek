@@ -23,7 +23,7 @@ class App extends Component {
   componentDidMount() {
     this.getUserPlaylists();
   }
-  
+
   getHashParams() {
     var hashParams = {};
     var e, r = /([^&;=]+)=?([^&;]*)/g,
@@ -57,7 +57,7 @@ class App extends Component {
     spotifyApi.getPlaylist(this.state.selectedPlaylistID)
       .then(response => {
         let trackData = [];
-        
+
         response.tracks.items.forEach(item => {
           trackData.push(
             {
@@ -68,9 +68,18 @@ class App extends Component {
         });
 
         trackData.forEach(track => {
-          console.log("Title: " + track.title);
-          console.log("Artist: " + track.artist);
-          console.log("");
+          let reqOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: track.title,
+              artist: track.artist,
+            }),
+          };
+
+          fetch("http://localhost:8888/download", reqOptions)
+            .then(res => res.json())
+            .then(data => console.log(data));
         });
       });
   }
@@ -85,17 +94,17 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          { 
-            !this.state.loggedIn && 
-            <a href="http://localhost:8888/">Login with spotify</a> 
+          {
+            !this.state.loggedIn &&
+            <a href="http://localhost:8888/">Login with spotify</a>
           }
-          { this.state.loggedIn && 
+          { this.state.loggedIn &&
             <div>
               <p>Select a playlist to download:</p>
               <PlaylistDropdown dropdownChange={this.dropdownChange} playlistData={this.state.userPlaylists} />
             </div>
           }
-          { this.state.loggedIn && 
+          { this.state.loggedIn &&
             <button style={{marginTop: "20px"}} onClick={() => this.downloadPlaylist()}>
               Download Playlist
             </button>
