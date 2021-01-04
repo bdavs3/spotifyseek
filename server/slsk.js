@@ -27,8 +27,8 @@ class Slsk {
                       `/tmp/slsk/${artist} - ${title}.mp3`
                     ),
                 }, (err, data) => {
-                    if (err) reject(err);
-                    else resolve("done");
+                    if (!err) resolve("done")
+                    else reject("failed")
                 });
             });
         });

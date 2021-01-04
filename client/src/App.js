@@ -67,17 +67,20 @@ class App extends Component {
           );
         });
 
+        let tracks = [];
+
+        trackData.forEach(track => {
+          tracks.push({
+            artist: track.artist,
+            title: track.title,
+          });
+        });
+
         let reqOptions = {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: { artist: "testArtist", title: "testTitle" },
+          body: JSON.stringify({ tracks: tracks }),
         }
-        // trackData.forEach(track => {
-        //   reqOptions.body.tracks.push({
-        //     artist: track.artist,
-        //     title: track.title,
-        //   });
-        // });
         fetch("http://localhost:8888/download", reqOptions);
       });
   }

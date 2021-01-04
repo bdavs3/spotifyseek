@@ -3,7 +3,6 @@ const querystring = require("querystring");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const got = require("got");
-const slsk = require("./slsk");
 const Slsk = require("./slsk");
 
 const CLIENT_ID = "f50a09d5921542feb41008ac70af146c";
@@ -65,8 +64,6 @@ class Server {
 
         (async () => {
           await this.setAccessToken(authCode);
-          //await this.setUserId();
-          //await this.getPlaylistInfo());
 
           await res.redirect(
             "http://localhost:3000/#" +
@@ -80,15 +77,14 @@ class Server {
     });
 
     app.post("/download", (req, res) => {
-      // req.body.tracks.forEach(async track => {
-      //   let artist = track.artist;
-      //   let title = track.title;
+      req.body.tracks.forEach(async track => {
+        let artist = track.artist;
+        let title = track.title;
 
-      //   console.log(`Downloading "${title}" by ${artist}...`);
-      //   let result = await this.client.download(artist, title);
-      //   console.log(result);
-      // });
-      console.log(req.body);
+        console.log(`Downloading "${title}" by ${artist}...`);
+        let result = await this.client.download(artist, title);
+        console.log(result);
+      });
     });
 
     app.listen(8888, () => {
@@ -144,49 +140,6 @@ class Server {
       console.log(error.message);
     }
   }
-
-  // Sets the user ID for the user that signed in with their Spotify details during the authentication process.
-//   async setUserId() {
-//     let options = {
-//       url: "https://api.spotify.com/v1/me",
-//       headers: { Authorization: "Bearer " + this.access_token },
-//     };
-
-//     try {
-//       const response = await got.get(options.url, {
-//         headers: options.headers,
-//       });
-
-//       this.userId = JSON.parse(response.body).id;
-//     } catch (error) {
-//       console.log("Error in get user data:");
-//       console.log(error.message);
-//     }
-//   }
-
-//   async getPlaylistInfo() {
-//     let options = {
-//       url: "https://api.spotify.com/v1/users/" + this.userId + "/playlists",
-//       headers: { Authorization: "Bearer " + this.access_token },
-//     };
-
-//     try {
-//       const response = await got.get(options.url, {
-//         headers: options.headers,
-//       });
-
-//       let playlistNames = [];
-
-//       JSON.parse(response.body).items.forEach((item) => {
-//         playlistNames.push(item);
-//       });
-
-//       return playlistNames;
-//     } catch (error) {
-//       console.log("Error in get playlist data:");
-//       console.log(error.message);
-//     }
-//   }
 }
 
 module.exports = Server;
