@@ -82,7 +82,7 @@ class Server {
         let title = track.title;
 
         console.log(`Downloading "${title}" by ${artist}...`);
-        let result = await this.client.download(artist, title);
+        let result = await this.client.download(artist, title)
         console.log(result);
       });
     });
@@ -135,9 +135,8 @@ class Server {
 
       this.access_token = body.access_token;
       this.refresh_token = body.refresh_token;
-    } catch (error) {
-      console.log("Err in post:");
-      console.log(error.message);
+    } catch (err) {
+      console.log(`err in setAccessToken:\n${err.message}`);
     }
   }
 }
