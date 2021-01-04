@@ -50,12 +50,22 @@ class App extends Component {
         this.setState({
           userPlaylists: playlistData
         });
+        if (this.state.userPlaylists.length > 0) {
+          this.setState({
+            selectedPlaylistID: this.state.userPlaylists[0].id
+          });
+        }
       }).catch((err) =>  {
         console.log(err);
       });
   }
 
   downloadPlaylist() {
+    if (this.state.selectedPlaylistID === "") {
+      alert("No playlist selected.");
+      return
+    }
+
     spotifyApi.getPlaylist(this.state.selectedPlaylistID)
       .then(response => {
         let trackData = [];
