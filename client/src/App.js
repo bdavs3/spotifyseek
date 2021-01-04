@@ -79,10 +79,17 @@ class App extends Component {
         let reqOptions = {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ tracks: tracks }),
+          body: JSON.stringify({
+            tracks: tracks,
+            fileTypePreference: ".mp3",
+          }),
         }
-        fetch("http://localhost:8888/download", reqOptions);
-      });
+        fetch("http://localhost:8888/download", reqOptions)
+          .then(response => response.json())
+          .then(data => alert(
+            `Found playlist. ${data}\nCheck the terminal window running the server to see progress.`
+          ));
+        });
   }
 
   dropdownChange = (event) => {

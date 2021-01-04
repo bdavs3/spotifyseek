@@ -77,13 +77,22 @@ class Server {
     });
 
     app.post("/download", (req, res) => {
+      let successMsg = `Downloading ${req.body.tracks.length} tracks...`;
+      res.send(JSON.stringify(successMsg));
+      console.log(successMsg);
+
+      let fileTypePreference = req.body.fileTypePreference;
+
       req.body.tracks.forEach(async track => {
         let artist = track.artist;
         let title = track.title;
 
-        console.log(`Downloading "${title}" by ${artist}...`);
-        let result = await this.client.download(artist, title)
-        console.log(result);
+        await this.client.download(artist, title, fileTypePreference)
+          .then(res => {
+            console.log(res);
+          }).catch(err => {
+            console.log(err);
+          });
       });
     });
 
