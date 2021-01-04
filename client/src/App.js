@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "./App.css";
 import PlaylistDropdown from "./components/playlist-dropdown";
+import FileTypeDropdown from "./components/filetype-dropdown";
 
 import SpotifyWebApi from 'spotify-web-api-js';
 const spotifyApi = new SpotifyWebApi();
@@ -16,6 +17,7 @@ class App extends Component {
     this.state = {
       loggedIn: token ? true : false,
       userPlaylists: [],
+      fileTypePreference: "mp3",
       selectedPlaylistID: "",
     }
   }
@@ -81,7 +83,7 @@ class App extends Component {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             tracks: tracks,
-            fileTypePreference: ".mp3",
+            fileTypePreference: `.${this.state.fileTypePreference}`,
           }),
         }
         fetch("http://localhost:8888/download", reqOptions)
@@ -92,9 +94,15 @@ class App extends Component {
         });
   }
 
-  dropdownChange = (event) => {
+  setPlaylistID = (event) => {
     this.setState({
       selectedPlaylistID: event.target.value
+    });
+  }
+
+  setFileTypePreference = (event) => {
+    this.setState({
+      fileTypePreference: event.target.value
     });
   }
 
@@ -109,7 +117,10 @@ class App extends Component {
           { this.state.loggedIn &&
             <div>
               <p>Select a playlist to download:</p>
-              <PlaylistDropdown dropdownChange={this.dropdownChange} playlistData={this.state.userPlaylists} />
+              <PlaylistDropdown dropdownChange={this.setPlaylistID} playlistData={this.state.userPlaylists} />
+
+              <p>Select your preferred audio file type:</p>
+              <FileTypeDropdown dropdownChange={this.setFileTypePreference} />
             </div>
           }
           { this.state.loggedIn &&
