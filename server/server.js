@@ -12,7 +12,8 @@ const CLIENT_SECRET = "db75b49b56df42c4b3adc6dd36242d36";
 const SLSK_USERNAME = process.env.USERNAME;
 const SLSK_PW = process.env.PW;
 const REDIRECT_URI = "http://localhost:8888/callback";
-const SCOPE = "playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private";
+const SCOPE =
+  "playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private";
 const STATE_KEY = "spotify-auth-state";
 
 class Server {
@@ -28,7 +29,7 @@ class Server {
     let app = express();
 
     app
-      .use(express.static(__dirname + '/public'))
+      .use(express.static(__dirname + "/public"))
       .use(express.json())
       .use(cors())
       .use(cookieParser());
@@ -97,13 +98,15 @@ class Server {
           title
         );
 
-        await this.slsk.download(artist, title, fileTypePreference)
+        await this.slsk
+          .download(artist, title, fileTypePreference)
           .then(() => {
             labelDownloadResult();
             if (downloadCounter === req.body.tracks.length) {
               console.log(chalk.green("Complete!"));
             }
-          }).catch(err => {
+          })
+          .catch((err) => {
             labelDownloadResult(err);
           });
       }
@@ -166,17 +169,17 @@ function generateRandomString(length) {
 function writeDownloadProgress(count, total, artist, title) {
   let msg =
     count > total
-    ? "Complete!"
-    : `Downloading ${count} of ${total}, '${title}' by ${artist}... `;
+      ? "Complete!"
+      : `Downloading ${count} of ${total}, '${title}' by ${artist}... `;
 
   process.stdout.write(msg);
 }
 
 function labelDownloadResult(err = "") {
   if (!err) {
-    process.stdout.write(symbols.success + "success \n");
+    process.stdout.write(chalk.green(`${symbols.success} success\n`));
   } else {
-    process.stdout.write(symbols.error + err + "\n");
+    process.stdout.write(chalk.red(`${symbols.error} ${err}\n`));
   }
 }
 

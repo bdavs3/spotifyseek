@@ -48,7 +48,7 @@ class Slsk {
               file: okResult,
               path: path.join(
                 os.homedir(),
-                `/tmp/slsk/${artist} - ${title}.${okResult.fileType}`
+                `/tmp/slsk/${artist} - ${title}${okResult.fileType}`
               ),
             },
             (err, data) => {
