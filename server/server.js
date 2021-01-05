@@ -77,9 +77,11 @@ class Server {
     });
 
     app.post("/download", (req, res) => {
-      let successMsg = `Downloading ${req.body.tracks.length} tracks...`;
-      res.send(JSON.stringify(successMsg));
-      console.log(successMsg);
+      let clientMsg = `Downloading ${req.body.tracks.length} tracks...`;
+      res.send(JSON.stringify(clientMsg));
+
+      let downloadCounter = 1;
+      this.writeDownloadProgress(downloadCounter, req.body.tracks.length);
 
       let fileTypePreference = req.body.fileTypePreference;
 
@@ -88,8 +90,8 @@ class Server {
         let title = track.title;
 
         await this.slsk.download(artist, title, fileTypePreference)
-          .then(res => {
-            console.log(res);
+          .then(() => {
+            this.writeDownloadProgress(++downloadCounter, req.body.tracks.length);
           }).catch(err => {
             console.log(err);
           });
@@ -110,6 +112,14 @@ class Server {
       text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
+  }
+
+  writeDownloadProgress(count, total) {
+    let msg = count > total ? "Complete!" : `Downloading ${count} of ${total}...`;
+
+    process.stdout.clearLine();
+    process.stdout.cursorTo(0);
+    process.stdout.write(msg);
   }
 
   // Exchanges authorization code for access token, as outlined here:
