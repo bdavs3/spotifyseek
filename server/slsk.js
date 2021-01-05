@@ -24,14 +24,14 @@ class Slsk {
       this.client.search({
         req: searchQuery,
         timeout: 2000
-      }, (err, res) => {
+      }, (err, results) => {
         if (err) reject(`err searching with query:\n${err}`);
 
-        let okFile = getOkFile(res, fileTypePreference);
-        if (!okFile) reject(`No file found for ${title} by ${artist}.`);
+        let okResult = getOkFile(results, fileTypePreference);
+        if (!okResult) reject(`No result found for ${title} by ${artist}.`);
 
         this.client.download({
-            file: okFile,
+            file: okResult,
             path: path.join(
               os.homedir(),
               `/tmp/slsk/${artist} - ${title}.mp3`
@@ -46,26 +46,37 @@ class Slsk {
   }
 }
 
-// getOkFile sifts through a list of files to find the first match that
-// is an mp3 file with open slots for download.
-function getOkFile(list, fileTypePreference) {
-  let okFile = null;
+// getOkFile sifts through a list of files to find the best match that
+// is of the preferred file type and has open slots for download.
+function getOkFile(results, fileTypePreference) {
+  let okResult = null;
   let re = /(?:\.([^.]+))?$/; // Matches file type suffixes.
 
-  for (let i = 0; i < list.length; i++) {
-    let file = list[i];
-    let fileType = re.exec(file.file)[0];
+  let bestSpeed = 0;
+  let preferredTypeFound = false;
 
-    if (file.slots) {
-      okFile = file;
-      // Keep looking if file does
-      if (fileType === fileTypePreference) {
-        break;
+  results.forEach(result => {
+    let fileType = re.exec(result.file)[0];
+
+    if (result.slots) {
+      if (preferredTypeFound) {
+        if (result.speed > bestSpeed && fileType === fileTypePreference) {
+          bestSpeed = result.speed;
+          okResult = result;
+        }
+      } else {
+        if (result.speed > bestSpeed) {
+          bestSpeed = result.speed;
+          okResult = result;
+        }
+        if (fileType === fileTypePreference) {
+          preferredTypeFound = true;
+        }
       }
     }
-  }
+  });
 
-  return okFile;
+  return okResult;
 }
 
 module.exports = Slsk;
