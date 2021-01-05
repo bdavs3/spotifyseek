@@ -3,6 +3,8 @@ const querystring = require("querystring");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const got = require("got");
+const symbols = require("log-symbols");
+const chalk = require("chalk");
 const Slsk = require("./slsk");
 
 const CLIENT_ID = "f50a09d5921542feb41008ac70af146c";
@@ -32,7 +34,7 @@ class Server {
       .use(cookieParser());
 
     app.get("/login", (req, res) => {
-      let state = this.generateRandomString(16);
+      let state = generateRandomString(16);
       res.cookie(STATE_KEY, state);
 
       res.redirect(
@@ -76,50 +78,40 @@ class Server {
       }
     });
 
-    app.post("/download", (req, res) => {
+    app.post("/download", async (req, res) => {
       let clientMsg = `Downloading ${req.body.tracks.length} tracks...`;
       res.send(JSON.stringify(clientMsg));
 
-      let downloadCounter = 1;
-      this.writeDownloadProgress(downloadCounter, req.body.tracks.length);
+      let downloadCounter = 0;
 
       let fileTypePreference = req.body.fileTypePreference;
 
-      req.body.tracks.forEach(async track => {
+      for (const track of req.body.tracks) {
         let artist = track.artist;
         let title = track.title;
 
+        writeDownloadProgress(
+          ++downloadCounter,
+          req.body.tracks.length,
+          artist,
+          title
+        );
+
         await this.slsk.download(artist, title, fileTypePreference)
           .then(() => {
-            this.writeDownloadProgress(++downloadCounter, req.body.tracks.length);
+            labelDownloadResult();
+            if (downloadCounter === req.body.tracks.length) {
+              console.log(chalk.green("Complete!"));
+            }
           }).catch(err => {
-            console.log(err);
+            labelDownloadResult(err);
           });
-      });
+      }
     });
 
     app.listen(8888, () => {
       console.log("Listening on 8888...");
     });
-  }
-
-  generateRandomString(length) {
-    let text = "";
-    let possible =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for (let i = 0; i < length; i++) {
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-    return text;
-  }
-
-  writeDownloadProgress(count, total) {
-    let msg = count > total ? "Complete!" : `Downloading ${count} of ${total}...`;
-
-    process.stdout.clearLine();
-    process.stdout.cursorTo(0);
-    process.stdout.write(msg);
   }
 
   // Exchanges authorization code for access token, as outlined here:
@@ -157,6 +149,34 @@ class Server {
     } catch (err) {
       console.log(`err in setAccessToken:\n${err.message}`);
     }
+  }
+}
+
+function generateRandomString(length) {
+  let text = "";
+  let possible =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (let i = 0; i < length; i++) {
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+  return text;
+}
+
+function writeDownloadProgress(count, total, artist, title) {
+  let msg =
+    count > total
+    ? "Complete!"
+    : `Downloading ${count} of ${total}, '${title}' by ${artist}... `;
+
+  process.stdout.write(msg);
+}
+
+function labelDownloadResult(err = "") {
+  if (!err) {
+    process.stdout.write(symbols.success + "success \n");
+  } else {
+    process.stdout.write(symbols.error + err + "\n");
   }
 }
 

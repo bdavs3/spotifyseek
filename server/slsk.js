@@ -26,13 +26,13 @@ class Slsk {
         timeout: 2000
       }, (err, results) => {
         if (err) {
-          reject(`err searching with query:\n${err}`);
+          reject(`err in search`);
           return;
         }
 
         let okResult = getOkFile(results, fileTypePreference);
         if (!okResult) {
-          reject(`No result found for ${title} by ${artist}.`);
+          reject(`no result found`);
           return;
         }
 
@@ -40,11 +40,11 @@ class Slsk {
           file: okResult,
           path: path.join(
             os.homedir(),
-            `/tmp/slsk/${artist} - ${title}.mp3`
+            `/tmp/slsk/${artist} - ${title}.${okResult.fileType}`
           ),
         }, (err, data) => {
-            if (err) reject(`err downloading file:\n${err}`);
-            else resolve(`Downloaded "${title}" by ${artist}...`);
+            if (err) reject(`err in download`);
+            else resolve(`success`);
         });
       });
     });
@@ -80,6 +80,8 @@ function getOkFile(results, fileTypePreference) {
       }
     }
   });
+
+  if (okResult) okResult["fileType"] = re.exec(okResult.file)[0];
 
   return okResult;
 }
