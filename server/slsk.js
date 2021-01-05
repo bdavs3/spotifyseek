@@ -5,48 +5,59 @@ const slsk = require("slsk-client");
 class Slsk {
   constructor(username, pw) {
     if (!username || !pw) {
-      console.log(`Set username and password first. See the README for further information.`);
+      console.log(
+        `Set username and password first. See the README for further information.`
+      );
       return;
     } else {
-      slsk.connect({
-        user: username,
-        pass: pw
-      }, (err, client) => {
-        if (err) console.log(`err connecting to soulseek:\n${err}`);
-        else this.client = client;
-      });
+      slsk.connect(
+        {
+          user: username,
+          pass: pw,
+        },
+        (err, client) => {
+          if (err) console.log(`err connecting to soulseek:\n${err}`);
+          else this.client = client;
+        }
+      );
     }
   }
 
   async download(artist, title, fileTypePreference) {
     let searchQuery = `${artist} ${title}`;
     return new Promise((resolve, reject) => {
-      this.client.search({
-        req: searchQuery,
-        timeout: 2000
-      }, (err, results) => {
-        if (err) {
-          reject(`err in search`);
-          return;
-        }
+      this.client.search(
+        {
+          req: searchQuery,
+          timeout: 2000,
+        },
+        (err, results) => {
+          if (err) {
+            reject(`err in search`);
+            return;
+          }
 
-        let okResult = getOkFile(results, fileTypePreference);
-        if (!okResult) {
-          reject(`no result found`);
-          return;
-        }
+          let okResult = getOkFile(results, fileTypePreference);
+          if (!okResult) {
+            reject(`no result found`);
+            return;
+          }
 
-        this.client.download({
-          file: okResult,
-          path: path.join(
-            os.homedir(),
-            `/tmp/slsk/${artist} - ${title}.${okResult.fileType}`
-          ),
-        }, (err, data) => {
-            if (err) reject(`err in download`);
-            else resolve(`success`);
-        });
-      });
+          this.client.download(
+            {
+              file: okResult,
+              path: path.join(
+                os.homedir(),
+                `/tmp/slsk/${artist} - ${title}.${okResult.fileType}`
+              ),
+            },
+            (err, data) => {
+              if (err) reject(`err in download`);
+              else resolve(`success`);
+            }
+          );
+        }
+      );
     });
   }
 }
@@ -60,7 +71,7 @@ function getOkFile(results, fileTypePreference) {
   let bestSpeed = 0;
   let preferredTypeFound = false;
 
-  results.forEach(result => {
+  results.forEach((result) => {
     let fileType = re.exec(result.file)[0];
 
     if (result.slots) {
@@ -79,6 +90,8 @@ function getOkFile(results, fileTypePreference) {
         }
       }
     }
+
+    console.log(okResult);
   });
 
   if (okResult) okResult["fileType"] = re.exec(okResult.file)[0];
