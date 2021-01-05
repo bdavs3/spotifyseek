@@ -40,9 +40,8 @@ class App extends Component {
   }
 
   getUserPlaylists() {
-    spotifyApi
-      .getUserPlaylists()
-      .then((response) => {
+    spotifyApi.getUserPlaylists().then(
+      (response) => {
         let playlistData = [];
 
         response.items.forEach((item) => {
@@ -57,10 +56,11 @@ class App extends Component {
             selectedPlaylistID: this.state.userPlaylists[0].id,
           });
         }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      },
+      (err) => {
+        // Not yet authenticated
+      }
+    );
   }
 
   downloadPlaylist() {
@@ -72,36 +72,63 @@ class App extends Component {
     spotifyApi.getPlaylist(this.state.selectedPlaylistID).then((response) => {
       let trackData = [];
 
-      response.tracks.items.forEach((item) => {
-        trackData.push({
-          artist: item.track.artists[0].name,
-          title: item.track.name,
+      this.buildTrackData(response.tracks, trackData);
+
+      // Results are paginated, with 100 tracks per page. We'll need to read
+      // through them until reaching a null page.
+      let nextPage = response.tracks.next;
+      this.readPages(nextPage, trackData).then(() => {
+        let tracks = [];
+
+        trackData.forEach((track) => {
+          tracks.push({
+            artist: track.artist,
+            title: track.title,
+          });
         });
+
+        let reqOptions = {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tracks: tracks,
+            fileTypePreference: `.${this.state.fileTypePreference}`,
+          }),
+        };
+        fetch("http://localhost:8888/download", reqOptions)
+          .then((response) => response.json())
+          .then((data) => alert(data))
+          .catch(() =>
+            alert("No response from server. Make sure it is running.")
+          );
       });
+    });
+  }
 
-      let tracks = [];
-
-      trackData.forEach((track) => {
-        tracks.push({
-          artist: track.artist,
-          title: track.title,
-        });
+  buildTrackData(page, trackData) {
+    page.items.forEach((item) => {
+      trackData.push({
+        artist: item.track.artists[0].name,
+        title: item.track.name,
       });
+    });
+  }
 
-      let reqOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          tracks: tracks,
-          fileTypePreference: `.${this.state.fileTypePreference}`,
-        }),
-      };
-      fetch("http://localhost:8888/download", reqOptions)
-        .then((response) => response.json())
-        .then((data) => alert(data))
-        .catch(() =>
-          alert("No response from server. Make sure it is running.")
-        );
+  async readPages(page, trackData) {
+    return new Promise((resolve, reject) => {
+      if (page) {
+        return spotifyApi
+          .getGeneric(page) // Use getGeneric since .next gives a URL.
+          .then((response) => {
+            this.buildTrackData(response, trackData);
+            resolve(this.readPages(response.next, trackData));
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      } else {
+        resolve("done");
+      }
     });
   }
 

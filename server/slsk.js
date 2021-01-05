@@ -90,8 +90,6 @@ function getOkFile(results, fileTypePreference) {
         }
       }
     }
-
-    console.log(okResult);
   });
 
   if (okResult) okResult["fileType"] = re.exec(okResult.file)[0];
