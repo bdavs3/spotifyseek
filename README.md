@@ -4,7 +4,7 @@
 
 Spotifyseek will allow you to download the entire contents of a Spotify playlist through Soulseek. A simple search combining the artist and title of each song (for example "Kelly Lee Owens Flow") is used to get Soulseek results. Only results with open slots (meaning they can be downloaded right away) are considered. Among these candidates, the one with the highest speed will be chosen, unless there is at least one file of the preferred file type. In this case, all non-preferred types are eliminated and top speed among only the preferred types is chosen.
 
-Some songs won't be found (which will be indicated in the terminal), either because they aren't available on Soulseek or because they require a more advanced search to be found. This program is never intended to get perfect results. 80-90% would be ideal, just to save the headache of typing every single song into SoulseekQT. The remainders probably need to be purchased on Bandcamp, unless you want to try a more detailed search in SoulseekQT.
+Some songs won't be found (which will be indicated in the terminal), either because they aren't available on Soulseek or because they require a more advanced search to be found, though searches are lightly processed to improve results (e.g. replacing "Songname - Extended Mix" with "Songname Extended Mix"). Query processing will be optimized over time. This tool is never intended to get perfect results. 80-90% would be ideal, just to save the headache of typing every single song into SoulseekQT. The remainders probably need to be purchased on Bandcamp, unless you want to try a more detailed search in SoulseekQT.
 
 ### Usage
 

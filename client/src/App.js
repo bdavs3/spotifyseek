@@ -82,8 +82,8 @@ class App extends Component {
 
         trackData.forEach((track) => {
           tracks.push({
-            artist: track.artist,
-            title: this.processTitle(track.title),
+            artist: this.processForSearch(track.artist),
+            title: this.processForSearch(track.title),
           });
         });
 
@@ -132,8 +132,14 @@ class App extends Component {
     });
   }
 
-  processTitle(title) {
-    return title.replace("- ", "");
+  processForSearch(str) {
+    return str
+      .replace("- ", "")
+      .replace("/", " ")
+      .replace("-", " ")
+      .replace(".", " ")
+      .replace("'", "")
+      .replace("...", "");
   }
 
   setPlaylistID = (event) => {
