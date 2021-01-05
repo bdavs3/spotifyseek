@@ -25,21 +25,26 @@ class Slsk {
         req: searchQuery,
         timeout: 2000
       }, (err, results) => {
-        if (err) reject(`err searching with query:\n${err}`);
+        if (err) {
+          reject(`err searching with query:\n${err}`);
+          return;
+        }
 
         let okResult = getOkFile(results, fileTypePreference);
-        if (!okResult) reject(`No result found for ${title} by ${artist}.`);
+        if (!okResult) {
+          reject(`No result found for ${title} by ${artist}.`);
+          return;
+        }
 
         this.client.download({
-            file: okResult,
-            path: path.join(
-              os.homedir(),
-              `/tmp/slsk/${artist} - ${title}.mp3`
-            ),
+          file: okResult,
+          path: path.join(
+            os.homedir(),
+            `/tmp/slsk/${artist} - ${title}.mp3`
+          ),
         }, (err, data) => {
             if (err) reject(`err downloading file:\n${err}`);
-
-            resolve(`Downloaded "${title}" by ${artist}...`);
+            else resolve(`Downloaded "${title}" by ${artist}...`);
         });
       });
     });
@@ -60,7 +65,7 @@ function getOkFile(results, fileTypePreference) {
 
     if (result.slots) {
       if (preferredTypeFound) {
-        if (result.speed > bestSpeed && fileType === fileTypePreference) {
+        if (fileType === fileTypePreference && result.speed > bestSpeed) {
           bestSpeed = result.speed;
           okResult = result;
         }
