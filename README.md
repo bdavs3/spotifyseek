@@ -36,3 +36,8 @@ Click the link that shows up to be redirected to the Spotify OAuth flow. Once lo
 
 - Downloaded files will be located in your `~/tmp/slsk` directory.
 - Make sure you aren't currently logged in to the desktop version of Soulseek, or else the server will crash when trying to connect to the service with your account.
+
+**Known Issues**:
+
+- If you open the Soulseek desktop app, quit out of it, and then attempt to use this program, you'll get a big error dump from the download attempt. I believe the connection to Soulseek is failing here, but haven't figured out why that error is not being caught when starting the server.
+  - **Fix**: Re-open the Soulseek desktop and then use this program. You'll get kicked out of Soulseek and the program will work properly. You can also manually disconnect each time before you close Soulseek to avoid this issue.

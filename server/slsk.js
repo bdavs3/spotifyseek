@@ -1,49 +1,45 @@
 const os = require("os");
 const path = require("path");
-const slsk = require('slsk-client');
+const slsk = require("slsk-client");
 
 class Slsk {
-  constructor (username, pw) {
-      this.username = username;
-      this.pw = pw;
+  constructor(username, pw) {
+    if (!username || !pw) {
+      console.log(`Set username and password first. See the README for further information.`);
+      return;
+    } else {
+      slsk.connect({
+        user: username,
+        pass: pw
+      }, (err, client) => {
+        if (err) console.log(`err connecting to soulseek:\n${err}`);
+        else this.client = client;
+      });
+    }
   }
 
   async download(artist, title, fileTypePreference) {
     let searchQuery = `${artist} ${title}`;
     return new Promise((resolve, reject) => {
-      slsk.connect({
-        user: this.username,
-        pass: this.pw
-      }, (err, client) => {
-        if (err) {
-          reject(`err connecting to soulseek:\n${err}`);
-        }
-        client.search({
-          req: searchQuery,
-          timeout: 2000
-        }, (err, res) => {
-          if (err) {
-            reject(`err searching with query:\n${err}`);
-          }
-          let okFile = getOkFile(res, fileTypePreference);
-          if (!okFile) {
-            reject(`no ok files found`);
-          }
-          console.log("\nDownloading...");
-          console.log(okFile);
+      this.client.search({
+        req: searchQuery,
+        timeout: 2000
+      }, (err, res) => {
+        if (err) reject(`err searching with query:\n${err}`);
 
-          client.download({
-              file: okFile,
-              path: path.join(
-                os.homedir(),
-                `/tmp/slsk/${artist} - ${title}.mp3`
-              ),
-          }, (err, data) => {
-              if (err) {
-                reject(`err downloading file:\n${err}`);
-              }
-              resolve(`Downloaded "${title}" by ${artist}...`);
-          });
+        let okFile = getOkFile(res, fileTypePreference);
+        if (!okFile) reject(`No file found for ${title} by ${artist}.`);
+
+        this.client.download({
+            file: okFile,
+            path: path.join(
+              os.homedir(),
+              `/tmp/slsk/${artist} - ${title}.mp3`
+            ),
+        }, (err, data) => {
+            if (err) reject(`err downloading file:\n${err}`);
+
+            resolve(`Downloaded "${title}" by ${artist}...`);
         });
       });
     });

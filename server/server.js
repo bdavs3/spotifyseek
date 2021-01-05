@@ -19,7 +19,7 @@ class Server {
     this.access_token = null; // Exchanged for auth code. Needed for API calls.
     this.userId = null; // Spotify user ID
 
-    this.client = new Slsk(SLSK_USERNAME, SLSK_PW);
+    this.slsk = new Slsk(SLSK_USERNAME, SLSK_PW);
   }
 
   serveExpress() {
@@ -87,7 +87,7 @@ class Server {
         let artist = track.artist;
         let title = track.title;
 
-        await this.client.download(artist, title, fileTypePreference)
+        await this.slsk.download(artist, title, fileTypePreference)
           .then(res => {
             console.log(res);
           }).catch(err => {

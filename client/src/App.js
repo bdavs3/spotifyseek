@@ -98,9 +98,7 @@ class App extends Component {
         }
         fetch("http://localhost:8888/download", reqOptions)
           .then(response => response.json())
-          .then(data => alert(
-            `Found playlist. ${data}\nCheck the terminal window running the server to see progress.`
-          ));
+          .then(data => alert(data));
         });
   }
 
