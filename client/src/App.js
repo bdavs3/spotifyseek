@@ -83,7 +83,7 @@ class App extends Component {
         trackData.forEach((track) => {
           tracks.push({
             artist: track.artist,
-            title: track.title,
+            title: this.processTitle(track.title),
           });
         });
 
@@ -130,6 +130,10 @@ class App extends Component {
         resolve("done");
       }
     });
+  }
+
+  processTitle(title) {
+    return title.replace("- ", "");
   }
 
   setPlaylistID = (event) => {
