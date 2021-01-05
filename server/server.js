@@ -84,6 +84,7 @@ class Server {
       res.send(JSON.stringify(clientMsg));
 
       let downloadCounter = 0;
+      let successCounter = 0;
 
       let fileTypePreference = req.body.fileTypePreference;
 
@@ -101,9 +102,15 @@ class Server {
         await this.slsk
           .download(artist, title, fileTypePreference)
           .then(() => {
+            successCounter++;
             labelDownloadResult();
             if (downloadCounter === req.body.tracks.length) {
-              console.log(chalk.green("Complete!"));
+              console.log(
+                chalk.green(
+                  `Complete! ${successCounter} of ${req.body.tracks.length}
+                  downloaded successfully.`
+                )
+              );
             }
           })
           .catch((err) => {
