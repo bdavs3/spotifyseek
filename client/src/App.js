@@ -139,7 +139,8 @@ class App extends Component {
       .replace("-", " ")
       .replace(".", " ")
       .replace("'", "")
-      .replace("...", "");
+      .replace("...", "")
+      .replace("!", "");
   }
 
   setPlaylistID = (event) => {

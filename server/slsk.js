@@ -29,7 +29,7 @@ class Slsk {
       this.client.search(
         {
           req: searchQuery,
-          timeout: 2000,
+          timeout: 3000,
         },
         (err, results) => {
           if (err) {
@@ -56,6 +56,10 @@ class Slsk {
               else resolve(`success`);
             }
           );
+
+          // Sometimes we'll get stuck on a download even though it appears to
+          // have slots, so time out after 2 minutes.
+          setTimeout(() => reject(`download timed out`), 1000 * 120);
         }
       );
     });
