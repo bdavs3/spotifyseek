@@ -85,7 +85,7 @@ function getOkFile(results, fileTypePreference) {
           okResult = result;
         }
       } else {
-        if (result.speed > bestSpeed) {
+        if (isAudio(fileType) && result.speed > bestSpeed) {
           bestSpeed = result.speed;
           okResult = result;
         }
@@ -99,6 +99,15 @@ function getOkFile(results, fileTypePreference) {
   if (okResult) okResult.fileType = re.exec(okResult.file)[0];
 
   return okResult;
+}
+
+function isAudio(fileType) {
+  return (
+    fileType === ".mp3" ||
+    fileType === ".flac" ||
+    fileType === ".m4a" ||
+    fileType === ".aiff"
+  );
 }
 
 module.exports = Slsk;
