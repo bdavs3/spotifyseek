@@ -63,8 +63,7 @@ Click the link that shows up to be redirected to the Spotify OAuth flow. Once lo
 
 ### Known Issues
 
-- **Random mp3 artifacts being downloaded to the server directory**: Have noticed this a couple of times when testing, and I am not sure what causes it.
-  - _Fix_: Delete them, for now. It might actually be a problem with [slsk-client](https://github.com/f-hj/slsk-client), but I'll look into it later since it doesn't really interfere with the intended use of this tool. Here is how to delete them en masse (Mac):
+- **Random mp3 artifacts being downloaded to the server directory**: Have noticed this a couple of times when testing. I think this occurs when a download times out. Here is how to delete them en masse (Mac):
   ```sh
   $ find . -name "*.mp3" -type f # Review the files to be deleted.
   $ find . -name "*.mp3" -type f -delete # Delete all the mp3 artifacts.
