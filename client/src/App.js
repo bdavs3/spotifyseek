@@ -23,6 +23,7 @@ class App extends Component {
   }
 
   componentDidMount() {
+    spotifyApi.getMe().then((userData) => (this.userData = userData));
     this.getUserPlaylists();
   }
 
@@ -82,6 +83,7 @@ class App extends Component {
 
         trackData.forEach((track) => {
           tracks.push({
+            uri: track.uri,
             artist: this.processForSearch(track.artist),
             title: this.processForSearch(track.title),
           });
@@ -105,9 +107,37 @@ class App extends Component {
     });
   }
 
+  sortDownloads() {
+    if (
+      window.confirm(
+        "WARNING - This will remove successful downloads from the selected playlist and add them to a new playlist. Are you sure you want to continue?"
+      )
+    ) {
+      fetch("http://localhost:8888/tracker")
+        .then((response) => response.json())
+        .then((uris) => {
+          spotifyApi
+            .removeTracksFromPlaylist(this.state.selectedPlaylistID, uris)
+            .then(() => {
+              spotifyApi
+                .createPlaylist(this.userData.id, {
+                  name: "Bad Downloads",
+                  description: "Failed Downloads from Spotifyseek",
+                  public: false,
+                })
+                .then((newPlaylist) => {
+                  spotifyApi.addTracksToPlaylist(newPlaylist.id, uris);
+                });
+            });
+        })
+        .catch(() => alert("Err in get failed downloads."));
+    }
+  }
+
   buildTrackData(page, trackData) {
     page.items.forEach((item) => {
       trackData.push({
+        uri: item.track.uri,
         artist: item.track.artists[0].name,
         title: item.track.name,
       });
@@ -181,6 +211,14 @@ class App extends Component {
               onClick={() => this.downloadPlaylist()}
             >
               Download Playlist
+            </button>
+          )}
+          {this.state.loggedIn && (
+            <button
+              style={{ marginTop: "20px" }}
+              onClick={() => this.sortDownloads()}
+            >
+              Sort Downloads
             </button>
           )}
         </header>

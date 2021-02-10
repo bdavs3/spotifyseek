@@ -21,6 +21,7 @@ class Server {
     this.authCode = null; // Granted after Spotify user approves access.
     this.access_token = null; // Exchanged for auth code. Needed for API calls.
     this.userId = null; // Spotify user ID
+    this.failedDownloads = []; // Stores song IDs of failed downloads.
 
     this.slsk = new Slsk(SLSK_USERNAME, SLSK_PW);
   }
@@ -80,6 +81,8 @@ class Server {
     });
 
     app.post("/download", async (req, res) => {
+      this.failedDownloads = [];
+
       let clientMsg = `Downloading ${req.body.tracks.length} tracks...`;
       res.send(JSON.stringify(clientMsg));
 
@@ -89,6 +92,7 @@ class Server {
       let fileTypePreference = req.body.fileTypePreference;
 
       for (const track of req.body.tracks) {
+        let uri = track.uri;
         let artist = track.artist;
         let title = track.title;
 
@@ -114,9 +118,14 @@ class Server {
             }
           })
           .catch((err) => {
+            this.failedDownloads.push(uri);
             labelDownloadResult(err);
           });
       }
+    });
+
+    app.get("/tracker", (req, res) => {
+      res.send(JSON.stringify(this.failedDownloads));
     });
 
     app.listen(8888, () => {
