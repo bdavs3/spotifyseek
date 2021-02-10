@@ -25,6 +25,7 @@ Before running the server, set the necessary environment variables in the first 
 ```sh
 $ export USERNAME="example" # Your Soulseek username
 $ export PW="123456" # Your Soulseek password
+$ export TIMEOUT=45 # Optionally set a download timeout (in seconds)
 ```
 
 **Windows Powershell**:
@@ -32,6 +33,7 @@ $ export PW="123456" # Your Soulseek password
 ```sh
 > $env:USERNAME="example"
 > $env:PW="123456"
+$ $env:TIMEOUT=45 # Optionally set a download timeout (in seconds)
 ```
 
 Then, run the server:

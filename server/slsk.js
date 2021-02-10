@@ -2,6 +2,8 @@ const os = require("os");
 const path = require("path");
 const slsk = require("slsk-client");
 
+const timeout = process.env.TIMEOUT || 90;
+
 class Slsk {
   constructor(username, pw) {
     if (!username || !pw) {
@@ -59,7 +61,7 @@ class Slsk {
 
           // Sometimes we'll get stuck on a download even though it appears to
           // have slots, so time out after 2 minutes.
-          setTimeout(() => reject(`download timed out`), 1000 * 120);
+          setTimeout(() => reject(`download timed out`), 1000 * timeout);
         }
       );
     });
