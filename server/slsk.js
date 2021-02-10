@@ -96,7 +96,7 @@ function getOkFile(results, fileTypePreference) {
     }
   });
 
-  if (okResult) okResult["fileType"] = re.exec(okResult.file)[0];
+  if (okResult) okResult.fileType = re.exec(okResult.file)[0];
 
   return okResult;
 }

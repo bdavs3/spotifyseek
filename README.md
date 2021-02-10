@@ -20,9 +20,18 @@ Two terminal instances are needed in order to start the frontend and the server.
 
 Before running the server, set the necessary environment variables in the first terminal instance:
 
+**Mac**:
+
 ```sh
 $ export USERNAME="example" # Your Soulseek username
 $ export PW="123456" # Your Soulseek password
+```
+
+**Windows Powershell**:
+
+```sh
+> $env:USERNAME="example"
+> $env:PW="123456"
 ```
 
 Then, run the server:
@@ -44,7 +53,12 @@ Click the link that shows up to be redirected to the Spotify OAuth flow. Once lo
 
 ### Notes
 
-- Downloaded files will be located in your `~/tmp/slsk` directory.
+- Downloaded files will be located in your `~/tmp/slsk` directory. On windows, the location of your home directory will be determined by the `USERPROFILE` environment variable. This can be checked in Powershell with:
+
+```sh
+> echo $env:USERPROFILE
+```
+
 - Avoid using SoulseekQT while running this tool. It should merely kick you out of SoulseekQT when starting a playlist download, but best not to introduce concurrent connections if possible.
 
 ### Known Issues

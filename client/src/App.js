@@ -134,13 +134,14 @@ class App extends Component {
 
   processForSearch(str) {
     return str
-      .replace("- ", "")
-      .replace("/", " ")
-      .replace("-", " ")
-      .replace(".", " ")
-      .replace("'", "")
-      .replace("...", "")
-      .replace("!", "");
+      .replaceAll("- ", "")
+      .replaceAll("/", " ")
+      .replaceAll("-", " ")
+      .replaceAll(".", " ")
+      .replaceAll("'", "")
+      .replaceAll("...", "")
+      .replaceAll("!", "")
+      .replace("Original Mix", "");
   }
 
   setPlaylistID = (event) => {
