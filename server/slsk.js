@@ -39,7 +39,7 @@ class Slsk {
             return;
           }
 
-          let okResult = getOkFile(results, fileTypePreference);
+          let okResult = getOkFile(results, fileTypePreference, title);
           if (!okResult) {
             reject(`no result found`);
             return;
@@ -70,7 +70,7 @@ class Slsk {
 
 // getOkFile sifts through a list of files to find the best match that
 // is of the preferred file type and has open slots for download.
-function getOkFile(results, fileTypePreference) {
+function getOkFile(results, fileTypePreference, songTitle) {
   let okResult = null;
   let re = /(?:\.([^.]+))?$/; // Matches file type suffixes.
 
@@ -82,12 +82,20 @@ function getOkFile(results, fileTypePreference) {
 
     if (result.slots) {
       if (preferredTypeFound) {
-        if (fileType === fileTypePreference && result.speed > bestSpeed) {
+        if (
+          fileType === fileTypePreference &&
+          remixCheck(result.file, songTitle) &&
+          result.speed > bestSpeed
+        ) {
           bestSpeed = result.speed;
           okResult = result;
         }
       } else {
-        if (isAudio(fileType) && result.speed > bestSpeed) {
+        if (
+          isAudio(fileType) &&
+          remixCheck(result.file, songTitle) &&
+          result.speed > bestSpeed
+        ) {
           bestSpeed = result.speed;
           okResult = result;
         }
@@ -110,6 +118,16 @@ function isAudio(fileType) {
     fileType === ".m4a" ||
     fileType === ".aiff"
   );
+}
+
+function remixCheck(file, songTitle) {
+  let pass = true;
+  if (file.toLowerCase().includes("remix")) {
+    if (!songTitle.toLowerCase().includes("remix")) pass = false;
+  } else {
+    if (songTitle.toLowerCase().includes("remix")) pass = false;
+  }
+  return pass;
 }
 
 module.exports = Slsk;
