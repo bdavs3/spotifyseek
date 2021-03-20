@@ -108,19 +108,19 @@ class Server {
           .then(() => {
             successCounter++;
             labelDownloadResult();
-            if (downloadCounter === req.body.tracks.length) {
-              console.log(
-                chalk.green(
-                  `Complete! ${successCounter} of ${req.body.tracks.length}
-                  downloaded successfully.`
-                )
-              );
-            }
           })
           .catch((err) => {
             this.failedDownloads.push(uri);
             labelDownloadResult(err);
           });
+          if (downloadCounter === req.body.tracks.length) {
+            console.log(
+              chalk.green(
+                `Complete! ${successCounter} of ${req.body.tracks.length}
+                downloaded successfully.`
+              )
+            );
+          }
       }
     });
 
