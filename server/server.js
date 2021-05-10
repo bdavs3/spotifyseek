@@ -9,7 +9,7 @@ const Slsk = require("./slsk");
 
 const CLIENT_ID = "f50a09d5921542feb41008ac70af146c";
 const CLIENT_SECRET = "db75b49b56df42c4b3adc6dd36242d36";
-const SLSK_USER = process.env.USER;
+const SLSK_USER = process.env.USERNAME;
 const SLSK_PW = process.env.PW;
 const REDIRECT_URI = "http://localhost:8888/callback";
 const SCOPE =
