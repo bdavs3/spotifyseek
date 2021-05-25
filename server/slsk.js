@@ -55,12 +55,14 @@ class Slsk {
             },
             (err, data) => {
               if (err) reject(`err in download`);
-              else resolve(`success`);
+              else {
+                resolve(`success`);
+              }
             }
           );
 
           // Sometimes we'll get stuck on a download even though it appears to
-          // have slots, so time out after 2 minutes.
+          // have slots, so prevent this from hanging up downloads with a timeout.
           setTimeout(() => reject(`download timed out`), 1000 * timeout);
         }
       );
