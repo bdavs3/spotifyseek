@@ -1,0 +1,1 @@
+find . -name "*.mp3" -type f -delete
